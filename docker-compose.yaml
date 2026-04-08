@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+
+  license-plate-video:
+    build: .
+    container_name: license-plate-detector-video
+    volumes:
+      - ./videos:/app/videos
+      - ./output:/app/output
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - LOG_DIR=/app/data
+    command: >
+      python src/main.py
+      --video /app/videos/IMG_8019.MOV
+      --output /app/output/output.mp4
+      --model /app/models/best.pt
+      --confidence 0.5
+      --no-preview
+
+  # Режим веб-камеры (только Linux)
+  # На Windows/Mac камера внутри Docker не поддерживается
+  license-plate-camera:
+    build: .
+    container_name: license-plate-detector-camera
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - LOG_DIR=/app/data
+    command: >
+      python src/main.py
+      --camera
+      --camera-id 0
+      --model /app/models/best.pt
+      --confidence 0.5
+      --no-preview
+    devices:
+      - /dev/video0:/dev/video0
